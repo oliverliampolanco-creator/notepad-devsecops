@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}SecureNotes — Notas seguras{% endblock %}
+{% block content %}
+<div class="min-h-screen flex flex-col items-center justify-center px-4">
+  <div class="max-w-lg text-center fade-in">
+    <div class="mb-6 inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-indigo-600 shadow-lg shadow-indigo-500/30">
+      <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+          d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+      </svg>
+    </div>
+    <h1 class="text-5xl font-bold text-white mb-3">SecureNotes</h1>
+    <p class="text-gray-400 text-lg mb-2">Bloc de notas con seguridad de nivel profesional</p>
+    <div class="flex flex-wrap justify-center gap-2 mb-10 text-xs">
+      <span class="bg-indigo-900/60 text-indigo-300 px-3 py-1 rounded-full border border-indigo-700">🔐 JWT + HttpOnly</span>
+      <span class="bg-indigo-900/60 text-indigo-300 px-3 py-1 rounded-full border border-indigo-700">🔑 bcrypt</span>
+      <span class="bg-indigo-900/60 text-indigo-300 px-3 py-1 rounded-full border border-indigo-700">🛡️ RBAC</span>
+      <span class="bg-indigo-900/60 text-indigo-300 px-3 py-1 rounded-full border border-indigo-700">📋 Audit Logs</span>
+      <span class="bg-indigo-900/60 text-indigo-300 px-3 py-1 rounded-full border border-indigo-700">⚡ Rate Limiting</span>
+      <span class="bg-indigo-900/60 text-indigo-300 px-3 py-1 rounded-full border border-indigo-700">🔒 HTTPS</span>
+    </div>
+    <div class="flex gap-4 justify-center">
+      <a href="/login"
+         class="bg-indigo-600 hover:bg-indigo-500 text-white font-semibold px-8 py-3 rounded-xl transition-all shadow-lg shadow-indigo-500/20">
+        Iniciar sesión
+      </a>
+      <a href="/register"
+         class="bg-gray-800 hover:bg-gray-700 text-white font-semibold px-8 py-3 rounded-xl transition-all border border-gray-700">
+        Registrarse
+      </a>
+    </div>
+  </div>
+
+  <!-- Security features grid -->
+  <div class="mt-20 max-w-4xl w-full grid grid-cols-1 md:grid-cols-3 gap-4 px-4 fade-in">
+    <div class="bg-gray-900 border border-gray-800 rounded-2xl p-5">
+      <div class="text-2xl mb-2">🔐</div>
+      <h3 class="font-semibold text-white mb-1">Autenticación segura</h3>
+      <p class="text-gray-400 text-sm">JWT con expiración corta, refresh tokens, bloqueo tras intentos fallidos</p>
+    </div>
+    <div class="bg-gray-900 border border-gray-800 rounded-2xl p-5">
+      <div class="text-2xl mb-2">🗄️</div>
+      <h3 class="font-semibold text-white mb-1">Base de datos protegida</h3>
+      <p class="text-gray-400 text-sm">ORM con queries parametrizadas, contraseñas hasheadas con bcrypt (work factor 12)</p>
+    </div>
+    <div class="bg-gray-900 border border-gray-800 rounded-2xl p-5">
+      <div class="text-2xl mb-2">📋</div>
+      <h3 class="font-semibold text-white mb-1">Auditoría completa</h3>
+      <p class="text-gray-400 text-sm">Logs de todos los eventos: logins, cambios, fallos, accesos no autorizados</p>
+    </div>
+  </div>
+</div>
+{% endblock %}

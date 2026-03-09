@@ -1,0 +1,270 @@
+{% extends "base.html" %}
+{% block title %}Mis Notas — SecureNotes{% endblock %}
+{% block content %}
+<div class="min-h-screen flex flex-col">
+  <!-- Navbar -->
+  <nav class="bg-gray-900 border-b border-gray-800 px-6 py-4 flex items-center justify-between sticky top-0 z-50">
+    <div class="flex items-center gap-3">
+      <div class="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center">
+        <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+        </svg>
+      </div>
+      <span class="font-bold text-white text-lg">SecureNotes</span>
+    </div>
+    <div class="flex items-center gap-3">
+      <span id="userBadge" class="text-gray-400 text-sm hidden md:block"></span>
+      <a id="adminLink" href="/admin" class="hidden text-sm bg-yellow-900/50 text-yellow-300 border border-yellow-700 px-3 py-1 rounded-lg hover:bg-yellow-900 transition">
+        Panel Admin
+      </a>
+      <button onclick="doLogout()"
+        class="text-sm bg-gray-800 hover:bg-gray-700 text-gray-300 px-4 py-2 rounded-lg border border-gray-700 transition">
+        Cerrar sesión
+      </button>
+    </div>
+  </nav>
+
+  <div class="flex flex-1 overflow-hidden">
+    <!-- Sidebar — lista de notas -->
+    <aside class="w-72 bg-gray-900 border-r border-gray-800 flex flex-col shrink-0">
+      <div class="p-4 border-b border-gray-800">
+        <button onclick="openModal()"
+          class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-2 rounded-xl transition flex items-center justify-center gap-2">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+          </svg>
+          Nueva nota
+        </button>
+      </div>
+      <div class="p-3">
+        <input id="searchInput" type="text" placeholder="Buscar notas..." oninput="filterNotes()"
+          class="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"/>
+      </div>
+      <div id="notesList" class="flex-1 overflow-y-auto p-3 space-y-2">
+        <div class="text-center text-gray-500 text-sm py-8">Cargando...</div>
+      </div>
+    </aside>
+
+    <!-- Editor -->
+    <main class="flex-1 flex flex-col bg-gray-950">
+      <div id="emptyState" class="flex-1 flex items-center justify-center">
+        <div class="text-center text-gray-600">
+          <svg class="w-16 h-16 mx-auto mb-4 opacity-30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+              d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+          </svg>
+          <p class="text-lg">Selecciona o crea una nota</p>
+        </div>
+      </div>
+      <div id="editor" class="hidden flex-1 flex flex-col p-6 gap-4 max-w-4xl mx-auto w-full">
+        <div class="flex items-center justify-between">
+          <input id="edTitle" type="text" placeholder="Título de la nota" maxlength="200"
+            class="flex-1 bg-transparent text-2xl font-bold text-white placeholder-gray-600 focus:outline-none border-b border-gray-800 pb-2 focus:border-indigo-500 transition"/>
+          <div class="flex gap-2 ml-4">
+            <button onclick="saveNote()"
+              class="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-lg text-sm font-medium transition">
+              Guardar
+            </button>
+            <button onclick="deleteNote()"
+              class="bg-red-900/50 hover:bg-red-900 text-red-400 px-3 py-2 rounded-lg text-sm transition border border-red-800">
+              Eliminar
+            </button>
+          </div>
+        </div>
+        <textarea id="edContent" placeholder="Escribe tu nota aquí..." maxlength="50000"
+          class="flex-1 bg-transparent text-gray-300 placeholder-gray-600 focus:outline-none resize-none text-base leading-relaxed min-h-[400px]"></textarea>
+        <div class="flex justify-between text-xs text-gray-600">
+          <span id="edMeta"></span>
+          <span id="edCharCount">0 / 50,000</span>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- Toast -->
+<div id="toast" class="fixed bottom-6 right-6 hidden px-4 py-3 rounded-xl text-sm font-medium shadow-xl z-50 transition-all"></div>
+
+<!-- Modal nueva nota -->
+<div id="modal" class="hidden fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+  <div class="bg-gray-900 border border-gray-800 rounded-2xl p-6 w-full max-w-md shadow-2xl fade-in">
+    <h2 class="text-xl font-bold text-white mb-4">Nueva nota</h2>
+    <div class="space-y-4">
+      <input id="newTitle" type="text" placeholder="Título" maxlength="200"
+        class="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-2.5 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"/>
+      <textarea id="newContent" placeholder="Contenido..." maxlength="50000" rows="5"
+        class="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-2.5 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none"></textarea>
+    </div>
+    <div class="flex gap-3 mt-5">
+      <button onclick="createNote()"
+        class="flex-1 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-2.5 rounded-xl transition">
+        Crear nota
+      </button>
+      <button onclick="closeModal()"
+        class="flex-1 bg-gray-800 hover:bg-gray-700 text-gray-300 font-semibold py-2.5 rounded-xl border border-gray-700 transition">
+        Cancelar
+      </button>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+let notes = [];
+let currentNoteId = null;
+let saveTimeout = null;
+
+// ── Verificar sesión al cargar ──
+async function init() {
+  try {
+    const res = await fetch('/api/auth/me', { credentials: 'include' });
+    if (!res.ok) { window.location.href = '/login'; return; }
+    const user = await res.json();
+    document.getElementById('userBadge').textContent = `👤 ${user.username}`;
+    document.getElementById('userBadge').classList.remove('hidden');
+    if (user.role === 'admin') document.getElementById('adminLink').classList.remove('hidden');
+    loadNotes();
+  } catch { window.location.href = '/login'; }
+}
+
+async function loadNotes() {
+  try {
+    // Token auto-renovado si expiró
+    let res = await fetch('/api/notes', { credentials: 'include' });
+    if (res.status === 401) {
+      await fetch('/api/auth/refresh', { method: 'POST', credentials: 'include' });
+      res = await fetch('/api/notes', { credentials: 'include' });
+    }
+    if (!res.ok) throw new Error();
+    notes = await res.json();
+    renderNotes(notes);
+  } catch { showToast('Error al cargar notas', 'error'); }
+}
+
+function renderNotes(list) {
+  const el = document.getElementById('notesList');
+  if (!list.length) { el.innerHTML = '<div class="text-center text-gray-500 text-sm py-8">Sin notas aún</div>'; return; }
+  el.innerHTML = list.map(n => `
+    <div class="note-card cursor-pointer p-3 rounded-xl border ${currentNoteId === n.id ? 'bg-indigo-600/20 border-indigo-600' : 'bg-gray-800/50 border-gray-700 hover:border-gray-600'}"
+         onclick="selectNote(${n.id})">
+      <div class="font-medium text-white text-sm truncate">${escHtml(n.title)}</div>
+      <div class="text-gray-400 text-xs truncate mt-0.5">${escHtml(n.content.slice(0, 60))}</div>
+      <div class="text-gray-600 text-xs mt-1">${formatDate(n.updated_at)}</div>
+    </div>`).join('');
+}
+
+function filterNotes() {
+  const q = document.getElementById('searchInput').value.toLowerCase();
+  renderNotes(q ? notes.filter(n => n.title.toLowerCase().includes(q) || n.content.toLowerCase().includes(q)) : notes);
+}
+
+function selectNote(id) {
+  const note = notes.find(n => n.id === id);
+  if (!note) return;
+  currentNoteId = id;
+  document.getElementById('emptyState').classList.add('hidden');
+  document.getElementById('editor').classList.remove('hidden');
+  document.getElementById('edTitle').value   = note.title;
+  document.getElementById('edContent').value = note.content;
+  document.getElementById('edMeta').textContent = `Modificado ${formatDate(note.updated_at)}`;
+  updateCharCount();
+  renderNotes(notes);
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('edContent')?.addEventListener('input', updateCharCount);
+});
+
+function updateCharCount() {
+  const len = document.getElementById('edContent').value.length;
+  document.getElementById('edCharCount').textContent = `${len.toLocaleString()} / 50,000`;
+}
+
+async function saveNote() {
+  if (!currentNoteId) return;
+  const title   = document.getElementById('edTitle').value.trim();
+  const content = document.getElementById('edContent').value.trim();
+  if (!title || !content) { showToast('Título y contenido requeridos', 'error'); return; }
+
+  const res = await fetch(`/api/notes/${currentNoteId}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
+    body: JSON.stringify({ title, content }),
+  });
+  if (res.ok) {
+    const updated = await res.json();
+    notes = notes.map(n => n.id === currentNoteId ? updated : n);
+    renderNotes(notes);
+    showToast('Nota guardada ✓', 'success');
+  } else {
+    showToast('Error al guardar', 'error');
+  }
+}
+
+async function deleteNote() {
+  if (!currentNoteId || !confirm('¿Eliminar esta nota?')) return;
+  const res = await fetch(`/api/notes/${currentNoteId}`, {
+    method: 'DELETE', credentials: 'include'
+  });
+  if (res.ok) {
+    notes = notes.filter(n => n.id !== currentNoteId);
+    currentNoteId = null;
+    document.getElementById('editor').classList.add('hidden');
+    document.getElementById('emptyState').classList.remove('hidden');
+    renderNotes(notes);
+    showToast('Nota eliminada', 'success');
+  }
+}
+
+// ── Modal crear nota ──
+function openModal()  { document.getElementById('modal').classList.remove('hidden'); document.getElementById('newTitle').focus(); }
+function closeModal() { document.getElementById('modal').classList.add('hidden'); document.getElementById('newTitle').value = ''; document.getElementById('newContent').value = ''; }
+
+async function createNote() {
+  const title   = document.getElementById('newTitle').value.trim();
+  const content = document.getElementById('newContent').value.trim();
+  if (!title || !content) { showToast('Completa título y contenido', 'error'); return; }
+
+  const res = await fetch('/api/notes', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
+    body: JSON.stringify({ title, content }),
+  });
+  if (res.ok) {
+    const note = await res.json();
+    notes.unshift(note);
+    closeModal();
+    selectNote(note.id);
+    showToast('Nota creada ✓', 'success');
+  } else {
+    showToast('Error al crear nota', 'error');
+  }
+}
+
+async function doLogout() {
+  await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
+  window.location.href = '/';
+}
+
+function showToast(msg, type='success') {
+  const t = document.getElementById('toast');
+  t.className = `fixed bottom-6 right-6 px-4 py-3 rounded-xl text-sm font-medium shadow-xl z-50 ${type === 'success' ? 'bg-green-900 text-green-200 border border-green-700' : 'bg-red-900 text-red-200 border border-red-700'}`;
+  t.textContent = msg;
+  t.classList.remove('hidden');
+  setTimeout(() => t.classList.add('hidden'), 3000);
+}
+
+function escHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function formatDate(iso) {
+  return new Date(iso).toLocaleDateString('es-MX', { day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit' });
+}
+
+init();
+</script>
+{% endblock %}
