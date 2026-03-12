@@ -16,3 +16,4 @@ gunicorn==22.0.0           # Servidor WSGI para producción
 # ─── Herramientas de auditoría de seguridad (DevSecOps) ───
 # Instalar por separado para CI/CD:
 # pip install pip-audit safety bandit
+psycopg2-binary==2.9.9
