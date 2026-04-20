@@ -1,17 +1,17 @@
 {% extends "base.html" %}
-{% block title %}Registro — SecureNotes{% endblock %}
+{% block title %}Register — SecureNotes{% endblock %}
 {% block content %}
 <div class="min-h-screen flex items-center justify-center px-4 py-10">
   <div class="w-full max-w-md fade-in">
     <div class="text-center mb-8">
-      <a href="/" class="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-indigo-600 shadow-lg shadow-indigo-500/30 mb-4">
+      <a href="/" class="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-indigo-600 shadow-lg shadow-indigo-500/30 mb-4 hover:bg-indigo-500 transition">
         <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
             d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/>
         </svg>
       </a>
-      <h1 class="text-3xl font-bold text-white">Crear cuenta</h1>
-      <p class="text-gray-400 mt-1">Únete a SecureNotes</p>
+      <h1 class="text-3xl font-bold text-white">Create Account</h1>
+      <p class="text-gray-400 mt-1">Join SecureNotes today</p>
     </div>
 
     <div class="bg-gray-900 border border-gray-800 rounded-2xl p-8 shadow-xl">
@@ -19,94 +19,140 @@
 
       <div class="space-y-5">
         <div>
-          <label class="block text-sm font-medium text-gray-300 mb-1.5">Usuario</label>
-          <input id="username" type="text" placeholder="mi_usuario" maxlength="50"
+          <label class="block text-sm font-medium text-gray-300 mb-1.5">Username</label>
+          <input id="username" type="text" placeholder="my_username" maxlength="50" autocomplete="username"
             class="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-2.5 text-white placeholder-gray-500
-                   focus:outline-none focus:ring-2 focus:ring-indigo-500 transition" />
-          <p class="text-gray-500 text-xs mt-1">3-50 caracteres, letras, números y _</p>
+                   focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition" />
+          <p class="text-gray-600 text-xs mt-1">3–50 characters, letters, numbers and _</p>
         </div>
+
         <div>
-          <label class="block text-sm font-medium text-gray-300 mb-1.5">Correo electrónico</label>
-          <input id="email" type="email" placeholder="correo@ejemplo.com" maxlength="120"
+          <label class="block text-sm font-medium text-gray-300 mb-1.5">Email address</label>
+          <input id="email" type="email" placeholder="you@example.com" maxlength="120" autocomplete="email"
             class="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-2.5 text-white placeholder-gray-500
-                   focus:outline-none focus:ring-2 focus:ring-indigo-500 transition" />
+                   focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition" />
         </div>
+
         <div>
-          <label class="block text-sm font-medium text-gray-300 mb-1.5">Contraseña</label>
+          <label class="block text-sm font-medium text-gray-300 mb-1.5">Password</label>
           <div class="relative">
-            <input id="password" type="password" placeholder="••••••••" maxlength="128" oninput="checkPassword(this.value)"
+            <input id="password" type="password" placeholder="••••••••" maxlength="128"
+              oninput="checkPassword(this.value)" autocomplete="new-password"
               class="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-2.5 text-white placeholder-gray-500
-                     focus:outline-none focus:ring-2 focus:ring-indigo-500 transition pr-12" />
+                     focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition pr-12" />
             <button type="button" onclick="togglePass()"
-              class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-200">
+              class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-200 transition">
               <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                   d="M15 12a3 3 0 11-6 0 3 3 0 016 0zM2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
               </svg>
             </button>
           </div>
-          <!-- Indicadores de política de contraseña [SEC-4] -->
-          <div id="pwChecks" class="mt-2 grid grid-cols-2 gap-1 text-xs">
-            <div id="c-len"  class="flex items-center gap-1 text-gray-500">✗ Mínimo 8 caracteres</div>
-            <div id="c-upp"  class="flex items-center gap-1 text-gray-500">✗ Mayúscula</div>
-            <div id="c-low"  class="flex items-center gap-1 text-gray-500">✗ Minúscula</div>
-            <div id="c-num"  class="flex items-center gap-1 text-gray-500">✗ Número</div>
-            <div id="c-sym"  class="flex items-center gap-1 text-gray-500">✗ Símbolo (@$!%*#?&_-)</div>
+
+          <!-- Password strength indicators -->
+          <div class="mt-3 space-y-1.5">
+            <div class="flex items-center gap-2">
+              <div id="bar" class="flex-1 h-1.5 rounded-full bg-gray-700 overflow-hidden">
+                <div id="barFill" class="h-full rounded-full transition-all duration-300" style="width:0%"></div>
+              </div>
+              <span id="barLabel" class="text-xs text-gray-600 w-16 text-right">—</span>
+            </div>
+            <div class="grid grid-cols-2 gap-1 text-xs">
+              <div id="c-len" class="flex items-center gap-1.5 text-gray-600">
+                <span class="w-3.5 h-3.5 rounded-full border border-current flex items-center justify-center text-xs">✕</span>
+                Min 8 characters
+              </div>
+              <div id="c-upp" class="flex items-center gap-1.5 text-gray-600">
+                <span class="w-3.5 h-3.5 rounded-full border border-current flex items-center justify-center text-xs">✕</span>
+                Uppercase letter
+              </div>
+              <div id="c-low" class="flex items-center gap-1.5 text-gray-600">
+                <span class="w-3.5 h-3.5 rounded-full border border-current flex items-center justify-center text-xs">✕</span>
+                Lowercase letter
+              </div>
+              <div id="c-num" class="flex items-center gap-1.5 text-gray-600">
+                <span class="w-3.5 h-3.5 rounded-full border border-current flex items-center justify-center text-xs">✕</span>
+                Number
+              </div>
+              <div id="c-sym" class="col-span-2 flex items-center gap-1.5 text-gray-600">
+                <span class="w-3.5 h-3.5 rounded-full border border-current flex items-center justify-center text-xs">✕</span>
+                Symbol (@$!%*#?&_-)
+              </div>
+            </div>
           </div>
         </div>
+
         <button id="btnReg" onclick="doRegister()"
-          class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-2.5 rounded-xl transition-all shadow-lg shadow-indigo-500/20">
-          Crear cuenta
+          class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-2.5 rounded-xl transition-all
+                 shadow-lg shadow-indigo-500/20 disabled:opacity-50 disabled:cursor-not-allowed">
+          Create Account
         </button>
       </div>
 
       <p class="text-center text-gray-400 text-sm mt-6">
-        ¿Ya tienes cuenta?
-        <a href="/login" class="text-indigo-400 hover:text-indigo-300 font-medium">Inicia sesión</a>
+        Already have an account?
+        <a href="/login" class="text-indigo-400 hover:text-indigo-300 font-medium">Sign in</a>
       </p>
     </div>
   </div>
 </div>
 {% endblock %}
+
 {% block scripts %}
 <script>
-function showAlert(msg, type='error') {
+function showAlert(msg, type = 'error') {
   const el = document.getElementById('alert');
-  el.className = `mb-4 p-3 rounded-lg text-sm font-medium ${type === 'error' ? 'bg-red-900/60 text-red-300 border border-red-700' : 'bg-green-900/60 text-green-300 border border-green-700'}`;
+  el.className = `mb-4 p-3 rounded-lg text-sm font-medium ${
+    type === 'error'
+      ? 'bg-red-900/60 text-red-300 border border-red-800'
+      : 'bg-green-900/60 text-green-300 border border-green-800'
+  }`;
   el.textContent = msg;
   el.classList.remove('hidden');
 }
+
 function togglePass() {
   const p = document.getElementById('password');
   p.type = p.type === 'password' ? 'text' : 'password';
 }
-function setCheck(id, ok) {
-  const el = document.getElementById(id);
-  el.className = 'flex items-center gap-1 ' + (ok ? 'text-green-400' : 'text-gray-500');
-  el.textContent = (ok ? '✓ ' : '✗ ') + el.textContent.slice(2);
-}
-function checkPassword(v) {
-  document.getElementById('c-len').textContent  = (v.length >= 8 ? '✓' : '✗') + ' Mínimo 8 caracteres';
-  document.getElementById('c-len').className    = 'flex items-center gap-1 ' + (v.length >= 8 ? 'text-green-400' : 'text-gray-500');
-  check('c-upp', /[A-Z]/.test(v), 'Mayúscula');
-  check('c-low', /[a-z]/.test(v), 'Minúscula');
-  check('c-num', /\d/.test(v),    'Número');
-  check('c-sym', /[@$!%*#?&_\-]/.test(v), 'Símbolo (@$!%*#?&_-)');
-}
+
 function check(id, ok, label) {
   const el = document.getElementById(id);
-  el.textContent = (ok ? '✓ ' : '✗ ') + label;
-  el.className   = 'flex items-center gap-1 ' + (ok ? 'text-green-400' : 'text-gray-500');
+  const icon = el.querySelector('span');
+  el.className = `flex items-center gap-1.5 ${ok ? 'text-green-400' : 'text-gray-600'}`;
+  icon.className = `w-3.5 h-3.5 rounded-full border border-current flex items-center justify-center text-xs ${ok ? 'bg-green-500/20' : ''}`;
+  icon.textContent = ok ? '✓' : '✕';
 }
+
+function checkPassword(v) {
+  const checks = [
+    ['c-len', v.length >= 8,            'Min 8 characters'],
+    ['c-upp', /[A-Z]/.test(v),          'Uppercase letter'],
+    ['c-low', /[a-z]/.test(v),          'Lowercase letter'],
+    ['c-num', /\d/.test(v),             'Number'],
+    ['c-sym', /[@$!%*#?&_\-]/.test(v), 'Symbol (@$!%*#?&_-)'],
+  ];
+  const passed = checks.filter(([,ok]) => ok).length;
+  checks.forEach(([id, ok, label]) => check(id, ok, label));
+
+  const colors  = ['bg-red-500','bg-orange-500','bg-yellow-500','bg-lime-500','bg-green-500'];
+  const labels  = ['','Weak','Fair','Good','Strong'];
+  const widths  = ['0%','25%','50%','75%','100%'];
+  document.getElementById('barFill').className = `h-full rounded-full transition-all duration-300 ${colors[passed] || ''}`;
+  document.getElementById('barFill').style.width = widths[passed];
+  document.getElementById('barLabel').textContent = labels[passed] || '';
+  document.getElementById('barLabel').className = `text-xs w-16 text-right ${passed >= 4 ? 'text-green-400' : passed >= 2 ? 'text-yellow-400' : 'text-red-400'}`;
+}
+
 async function doRegister() {
   const btn      = document.getElementById('btnReg');
   const username = document.getElementById('username').value.trim();
   const email    = document.getElementById('email').value.trim();
   const password = document.getElementById('password').value;
 
-  if (!username || !email || !password) { showAlert('Completa todos los campos'); return; }
+  if (!username || !email || !password) { showAlert('Please complete all fields'); return; }
 
-  btn.disabled = true; btn.textContent = 'Creando cuenta...';
+  btn.disabled = true; btn.textContent = 'Creating account…';
 
   try {
     const res  = await fetch('/api/auth/register', {
@@ -116,16 +162,16 @@ async function doRegister() {
     });
     const data = await res.json();
     if (res.ok) {
-      showAlert('¡Cuenta creada! Redirigiendo al login...', 'success');
+      showAlert('Account created! Redirecting to login…', 'success');
       setTimeout(() => window.location.href = '/login', 1500);
     } else {
       const detail = data.details ? '\n• ' + data.details.join('\n• ') : '';
       showAlert((data.error || 'Error') + detail);
-      btn.disabled = false; btn.textContent = 'Crear cuenta';
+      btn.disabled = false; btn.textContent = 'Create Account';
     }
   } catch {
-    showAlert('Error de conexión');
-    btn.disabled = false; btn.textContent = 'Crear cuenta';
+    showAlert('Connection error. Please try again.');
+    btn.disabled = false; btn.textContent = 'Create Account';
   }
 }
 </script>

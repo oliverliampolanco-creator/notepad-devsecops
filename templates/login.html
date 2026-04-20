@@ -1,17 +1,17 @@
 {% extends "base.html" %}
-{% block title %}Iniciar sesión — SecureNotes{% endblock %}
+{% block title %}Sign In — SecureNotes{% endblock %}
 {% block content %}
 <div class="min-h-screen flex items-center justify-center px-4">
   <div class="w-full max-w-md fade-in">
     <div class="text-center mb-8">
-      <a href="/" class="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-indigo-600 shadow-lg shadow-indigo-500/30 mb-4">
+      <a href="/" class="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-indigo-600 shadow-lg shadow-indigo-500/30 mb-4 hover:bg-indigo-500 transition">
         <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
             d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
         </svg>
       </a>
-      <h1 class="text-3xl font-bold text-white">Bienvenido</h1>
-      <p class="text-gray-400 mt-1">Inicia sesión en tu cuenta</p>
+      <h1 class="text-3xl font-bold text-white">Welcome back</h1>
+      <p class="text-gray-400 mt-1">Sign in to your account</p>
     </div>
 
     <div class="bg-gray-900 border border-gray-800 rounded-2xl p-8 shadow-xl">
@@ -19,14 +19,14 @@
 
       <div class="space-y-5">
         <div>
-          <label class="block text-sm font-medium text-gray-300 mb-1.5">Usuario</label>
-          <input id="username" type="text" autocomplete="username" placeholder="tu_usuario"
+          <label class="block text-sm font-medium text-gray-300 mb-1.5">Username</label>
+          <input id="username" type="text" autocomplete="username" placeholder="your_username"
             class="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-2.5 text-white placeholder-gray-500
                    focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition"
             maxlength="50" />
         </div>
         <div>
-          <label class="block text-sm font-medium text-gray-300 mb-1.5">Contraseña</label>
+          <label class="block text-sm font-medium text-gray-300 mb-1.5">Password</label>
           <div class="relative">
             <input id="password" type="password" autocomplete="current-password" placeholder="••••••••"
               class="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-2.5 text-white placeholder-gray-500
@@ -36,9 +36,7 @@
               class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-200 transition">
               <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                  d="M15 12a3 3 0 11-6 0 3 3 0 016 0zM2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
               </svg>
             </button>
           </div>
@@ -46,13 +44,13 @@
         <button id="btnLogin" onclick="doLogin()"
           class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-2.5 rounded-xl transition-all
                  shadow-lg shadow-indigo-500/20 disabled:opacity-50 disabled:cursor-not-allowed">
-          Iniciar sesión
+          Sign In
         </button>
       </div>
 
       <p class="text-center text-gray-400 text-sm mt-6">
-        ¿No tienes cuenta?
-        <a href="/register" class="text-indigo-400 hover:text-indigo-300 font-medium">Regístrate</a>
+        Don't have an account?
+        <a href="/register" class="text-indigo-400 hover:text-indigo-300 font-medium">Create one</a>
       </p>
     </div>
   </div>
@@ -62,26 +60,20 @@
 <script>
 function showAlert(msg, type='error') {
   const el = document.getElementById('alert');
-  el.className = `mb-4 p-3 rounded-lg text-sm font-medium ${type === 'error' ? 'bg-red-900/60 text-red-300 border border-red-700' : 'bg-green-900/60 text-green-300 border border-green-700'}`;
+  el.className = `mb-4 p-3 rounded-lg text-sm font-medium ${type === 'error' ? 'bg-red-900/60 text-red-300 border border-red-800' : 'bg-green-900/60 text-green-300 border border-green-800'}`;
   el.textContent = msg;
   el.classList.remove('hidden');
 }
-
 function togglePassword(id) {
   const el = document.getElementById(id);
   el.type = el.type === 'password' ? 'text' : 'password';
 }
-
 async function doLogin() {
   const btn = document.getElementById('btnLogin');
   const username = document.getElementById('username').value.trim();
   const password = document.getElementById('password').value;
-
-  if (!username || !password) { showAlert('Completa todos los campos'); return; }
-
-  btn.disabled = true;
-  btn.textContent = 'Verificando...';
-
+  if (!username || !password) { showAlert('Please complete all fields'); return; }
+  btn.disabled = true; btn.textContent = 'Verifying…';
   try {
     const res = await fetch('/api/auth/login', {
       method: 'POST',
@@ -90,22 +82,18 @@ async function doLogin() {
       body: JSON.stringify({ username, password }),
     });
     const data = await res.json();
-
     if (res.ok) {
-      showAlert('¡Bienvenido! Redirigiendo...', 'success');
-      setTimeout(() => window.location.href = '/notes', 800);
+      showAlert('Welcome! Redirecting…', 'success');
+      setTimeout(() => window.location.replace('/notes'), 700);
     } else {
-      showAlert(data.error || 'Error al iniciar sesión');
-      btn.disabled = false;
-      btn.textContent = 'Iniciar sesión';
+      showAlert(data.error || 'Error signing in');
+      btn.disabled = false; btn.textContent = 'Sign In';
     }
   } catch {
-    showAlert('Error de conexión');
-    btn.disabled = false;
-    btn.textContent = 'Iniciar sesión';
+    showAlert('Connection error');
+    btn.disabled = false; btn.textContent = 'Sign In';
   }
 }
-
 document.addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
 </script>
 {% endblock %}
